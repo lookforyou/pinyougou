@@ -15,6 +15,7 @@ import com.pinyougou.sellergoods.service.SpecificationService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -99,26 +100,25 @@ public class SpecificationServiceImpl implements SpecificationService {
      */
     @Override
     public void delete(Long[] ids) {
-        for (Long id : ids) {
-            specificationMapper.deleteByPrimaryKey(id);
-        }
+        TbSpecificationOptionExample specificationOptionExample = new TbSpecificationOptionExample();
+        TbSpecificationExample specificationExample = new TbSpecificationExample();
+        specificationOptionExample.createCriteria().andSpecIdIn(Arrays.asList(ids));
+        specificationExample.createCriteria().andIdIn(Arrays.asList(ids));
+        specificationMapper.deleteByExample(specificationExample);
+        specificationOptionMapper.deleteByExample(specificationOptionExample);
     }
 
 
     @Override
     public PageResult findPage(TbSpecification specification, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-
         TbSpecificationExample example = new TbSpecificationExample();
         Criteria criteria = example.createCriteria();
-
         if (specification != null) {
             if (specification.getSpecName() != null && specification.getSpecName().length() > 0) {
                 criteria.andSpecNameLike("%" + specification.getSpecName() + "%");
             }
-
         }
-
         Page<TbSpecification> page = (Page<TbSpecification>) specificationMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());
     }
