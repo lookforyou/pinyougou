@@ -11,6 +11,7 @@ import com.pinyougou.sellergoods.service.TypeTemplateService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -70,9 +71,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
      */
     @Override
     public void delete(Long[] ids) {
-        for (Long id : ids) {
-            typeTemplateMapper.deleteByPrimaryKey(id);
-        }
+        TbTypeTemplateExample example = new TbTypeTemplateExample();
+        example.createCriteria().andIdIn(Arrays.asList(ids));
+        typeTemplateMapper.deleteByExample(example);
     }
 
 
