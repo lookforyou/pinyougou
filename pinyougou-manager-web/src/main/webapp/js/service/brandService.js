@@ -23,4 +23,8 @@ app.service("brandService", function ($http) {
     this.search = function (pageNum, pageSize, brandSelect) {
         return $http.post("../brand/search?pageNum=" + pageNum + "&pageSize=" + pageSize, brandSelect);
     };
+
+    this.findIdAndNameByBrand = function () {
+        return $http.get("../brand/findIdAndName");
+    }
 });

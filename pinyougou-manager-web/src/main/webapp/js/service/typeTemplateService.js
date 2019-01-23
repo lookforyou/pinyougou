@@ -26,7 +26,7 @@ app.service('typeTemplateService', function ($http) {
         return $http.get('../typeTemplate/delete?ids=' + ids);
     };
     //搜索
-    this.search = function (page, rows, typeTemplate) {
-        return $http.post('../typeTemplate/search?page=' + page + "&rows=" + rows, typeTemplate);
+    this.search = function (page, rows, typeTemplateSelect) {
+        return $http.post('../typeTemplate/search?page=' + page + "&rows=" + rows, typeTemplateSelect);
     };
 });

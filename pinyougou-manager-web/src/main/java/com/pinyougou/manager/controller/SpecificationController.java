@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/specification")
@@ -113,6 +114,11 @@ public class SpecificationController {
     @RequestMapping("/search")
     public PageResult search(@RequestBody TbSpecification specification, int page, int rows) {
         return specificationService.findPage(specification, page, rows);
+    }
+
+    @RequestMapping("/findIdAndNameBySpecification")
+    public List<Map> findIdAndNameBySpecification() {
+        return specificationService.findIdAndNameBySpecification();
     }
 
 }

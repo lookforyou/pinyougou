@@ -29,4 +29,8 @@ app.service('specificationService', function ($http) {
     this.search = function (page, rows, specificationSelect) {
         return $http.post('../specification/search?page=' + page + "&rows=" + rows, specificationSelect);
     };
+
+    this.findIdAndNameBySpecification = function () {
+        return $http.get("../specification/findIdAndNameBySpecification");
+    }
 });

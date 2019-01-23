@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/brand")
@@ -73,5 +74,10 @@ public class BrandController {
                                             @RequestParam(value = "pageNum", required = true, defaultValue = "1") Integer pageNum,
                                             @RequestParam(value = "pageSize", required = true, defaultValue = "10") Integer pageSize) {
         return brandService.findByPage(brand, pageNum, pageSize);
+    }
+
+    @RequestMapping("/findIdAndName")
+    public List<Map> findIdAndName() {
+        return brandService.findIdAndName();
     }
 }

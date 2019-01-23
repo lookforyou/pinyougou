@@ -24,4 +24,16 @@ app.controller("baseController", function ($scope) {
             $scope.ids.splice($scope.ids.indexOf(id), 1);
         }
     };
+
+    $scope.jsonToString = function (jsonString, key) {
+        var json = JSON.parse(jsonString);
+        var value = "";
+        for (var i = 0; i < json.length; i++) {
+            value += json[i][key];
+            if (i != json.length - 1) {
+                value += "，";
+            }
+        }
+        return value;
+    };
 });

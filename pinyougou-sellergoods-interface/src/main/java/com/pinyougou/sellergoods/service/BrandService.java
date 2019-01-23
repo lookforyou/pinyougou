@@ -4,6 +4,7 @@ import com.pinyougou.pojo.TbBrand;
 import entity.PageResult;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BrandService {
     List<TbBrand> findAll();
@@ -19,4 +20,6 @@ public interface BrandService {
     void deleteBrands(Long... ids);
 
     PageResult findByPage(TbBrand brand, Integer pageNum, Integer pageSize);
+
+    List<Map> findIdAndName();
 }
