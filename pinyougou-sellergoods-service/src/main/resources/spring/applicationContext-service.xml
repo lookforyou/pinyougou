@@ -20,4 +20,5 @@
     <dubbo:registry address="redis://localhost:6379"/>
     <dubbo:annotation package="com.pinyougou.sellergoods.service.impl"/>
 
+    <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
 </beans>

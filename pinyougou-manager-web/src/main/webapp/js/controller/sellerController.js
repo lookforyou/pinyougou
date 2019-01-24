@@ -7,7 +7,7 @@ app.controller('sellerController', function ($scope, $controller, sellerService)
     $scope.findAll = function () {
         sellerService.findAll().success(
             function (data) {
-                $scope.list = data;
+                $scope.sellers = data;
             }
         );
     };
@@ -16,7 +16,7 @@ app.controller('sellerController', function ($scope, $controller, sellerService)
     $scope.findPage = function (page, rows) {
         sellerService.findPage(page, rows).success(
             function (data) {
-                $scope.list = data.rows;
+                $scope.sellers = data.rows;
                 $scope.paginationConf.totalItems = data.total;//更新总记录数
             }
         );
@@ -26,7 +26,7 @@ app.controller('sellerController', function ($scope, $controller, sellerService)
     $scope.findOne = function (id) {
         sellerService.findOne(id).success(
             function (data) {
-                $scope.entity = data;
+                $scope.seller = data;
             }
         );
     };
@@ -34,10 +34,10 @@ app.controller('sellerController', function ($scope, $controller, sellerService)
     //保存
     $scope.save = function () {
         var serviceObject;//服务层对象
-        if ($scope.entity.id != null) {//如果有ID
-            serviceObject = sellerService.update($scope.entity); //修改
+        if ($scope.seller.id != null) {//如果有ID
+            serviceObject = sellerService.update($scope.seller); //修改
         } else {
-            serviceObject = sellerService.add($scope.entity);//增加
+            serviceObject = sellerService.add($scope.seller);//增加
         }
         serviceObject.success(
             function (data) {
@@ -45,7 +45,7 @@ app.controller('sellerController', function ($scope, $controller, sellerService)
                     //重新查询
                     $scope.reload();//重新加载
                 } else {
-                    alert(data.message);
+                    alert(data.msg);
                 }
             }
         );
@@ -65,16 +65,25 @@ app.controller('sellerController', function ($scope, $controller, sellerService)
         );
     };
 
-    $scope.searchEntity = {};//定义搜索对象
-
+    $scope.searchSeller = {};//定义搜索对象
     //搜索
     $scope.search = function (page, rows) {
-        sellerService.search(page, rows, $scope.searchEntity).success(
+        sellerService.search(page, rows, $scope.searchSeller).success(
             function (data) {
-                $scope.list = data.rows;
+                $scope.sellers = data.rows;
                 $scope.paginationConf.totalItems = data.total;//更新总记录数
             }
         );
-    }
+    };
 
+    $scope.updateStatus = function (sellerId, status) {
+        sellerService.updateStatus(sellerId, status).success(function (data) {
+            if (data.success) {
+                //重新查询
+                $scope.reload();//重新加载
+            } else {
+                alert(data.msg);
+            }
+        })
+    }
 });	

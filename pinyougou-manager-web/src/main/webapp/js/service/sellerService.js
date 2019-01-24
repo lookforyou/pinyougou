@@ -14,19 +14,23 @@ app.service('sellerService', function ($http) {
         return $http.get('../seller/findOne?id=' + id);
     };
     //增加
-    this.add = function (entity) {
-        return $http.post('../seller/add', entity);
+    this.add = function (seller) {
+        return $http.post('../seller/add', seller);
     };
     //修改
-    this.update = function (entity) {
-        return $http.post('../seller/update', entity);
+    this.update = function (seller) {
+        return $http.post('../seller/update', seller);
     };
     //删除
     this.dele = function (ids) {
         return $http.get('../seller/delete?ids=' + ids);
     };
     //搜索
-    this.search = function (page, rows, searchEntity) {
-        return $http.post('../seller/search?page=' + page + "&rows=" + rows, searchEntity);
+    this.search = function (page, rows, searchSeller) {
+        return $http.post('../seller/search?page=' + page + "&rows=" + rows, searchSeller);
     };
+
+    this.updateStatus = function (sellerId, status) {
+        return $http.get("../seller/updateStatus?sellerId=" + sellerId + "&status=" + status);
+    }
 });

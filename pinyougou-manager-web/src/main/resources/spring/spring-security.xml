@@ -11,11 +11,16 @@
     <http pattern="/img/**" security="none"/>
     <http pattern="/js/**" security="none"/>
     <http pattern="/plugins/**" security="none"/>
+    <http pattern="/favicon.ico" security="none"/>
 
-    <http use-expressions="false">
+    <http use-expressions="false" auto-config="true">
         <intercept-url pattern="/**" access="ROLE_ADMIN"/>
-        <form-login login-page="/login.html" default-target-url="/admin/index.html" authentication-failure-url="/login.html"/>
+        <form-login login-page="/login.html" default-target-url="/admin/index.html" authentication-failure-url="/login.html" always-use-default-target="true"/>
         <csrf disabled="true"/>
+        <headers>
+            <frame-options policy="SAMEORIGIN"/>
+        </headers>
+        <logout invalidate-session="true" logout-success-url="/login.html" logout-url="/loginout"/>
     </http>
 
     <authentication-manager>

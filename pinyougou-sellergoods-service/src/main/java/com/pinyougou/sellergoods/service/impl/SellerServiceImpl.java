@@ -10,7 +10,9 @@ import com.pinyougou.pojo.TbSellerExample.Criteria;
 import com.pinyougou.sellergoods.service.SellerService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,6 +20,9 @@ public class SellerServiceImpl implements SellerService {
 
     @Autowired
     private TbSellerMapper sellerMapper;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
      * 查询全部
@@ -42,6 +47,11 @@ public class SellerServiceImpl implements SellerService {
      */
     @Override
     public void add(TbSeller seller) {
+        String password = seller.getPassword();
+        String encode = bCryptPasswordEncoder.encode(password);
+        seller.setPassword(encode);
+        seller.setStatus("0");
+        seller.setCreateTime(new Date());
         sellerMapper.insert(seller);
     }
 
@@ -106,7 +116,8 @@ public class SellerServiceImpl implements SellerService {
                 criteria.andTelephoneLike("%" + seller.getTelephone() + "%");
             }
             if (seller.getStatus() != null && seller.getStatus().length() > 0) {
-                criteria.andStatusLike("%" + seller.getStatus() + "%");
+//                criteria.andStatusLike("%" + seller.getStatus() + "%");
+                criteria.andStatusEqualTo(seller.getStatus());
             }
             if (seller.getAddressDetail() != null && seller.getAddressDetail().length() > 0) {
                 criteria.andAddressDetailLike("%" + seller.getAddressDetail() + "%");
@@ -155,6 +166,13 @@ public class SellerServiceImpl implements SellerService {
 
         Page<TbSeller> page = (Page<TbSeller>) sellerMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    @Override
+    public void updateStatus(String sellerId, String status) {
+        TbSeller seller = sellerMapper.selectByPrimaryKey(sellerId);
+        seller.setStatus(status);
+        sellerMapper.updateByPrimaryKey(seller);
     }
 
 }
