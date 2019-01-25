@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TypeTemplateServiceImpl implements TypeTemplateService {
@@ -102,6 +103,11 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 
         Page<TbTypeTemplate> page = (Page<TbTypeTemplate>) typeTemplateMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    @Override
+    public List<Map> findAllTypeName() {
+        return typeTemplateMapper.findAllTypeName();
     }
 
 }

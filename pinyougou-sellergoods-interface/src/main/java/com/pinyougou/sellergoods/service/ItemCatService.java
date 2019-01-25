@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.pinyougou.pojo.TbItemCat;
 
+import com.pinyougou.pojogroup.ItemCat;
 import entity.PageResult;
 
 public interface ItemCatService {
@@ -42,7 +43,7 @@ public interface ItemCatService {
      * @param id
      * @return
      */
-    public TbItemCat findOne(Long id);
+    public ItemCat findOne(Long id);
 
 
     /**
@@ -50,7 +51,7 @@ public interface ItemCatService {
      *
      * @param ids
      */
-    public void delete(Long[] ids);
+    public void delete(Long[] ids) throws Exception;
 
     /**
      * 分页
@@ -60,5 +61,7 @@ public interface ItemCatService {
      * @return
      */
     public PageResult findPage(TbItemCat itemCat, int pageNum, int pageSize);
+
+    List<TbItemCat> findByParentId(Long parentId);
 
 }

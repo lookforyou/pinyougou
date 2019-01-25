@@ -9,7 +9,6 @@
              http://www.springframework.org/schema/security/spring-security.xsd
              http://code.alibabatech.com/schema/dubbo
              http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-
     <http pattern="/css/**" security="none"/>
     <http pattern="/img/**" security="none"/>
     <http pattern="/js/**" security="none"/>
@@ -29,9 +28,11 @@
 
     <authentication-manager>
         <authentication-provider user-service-ref="userDetailServiceImpl">
+            <!--配置用户登录密码解密方式-->
             <password-encoder ref="bCryptPasswordEncoder"/>
         </authentication-provider>
     </authentication-manager>
+    <!--配置用户密码加密-->
     <beans:bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
     <beans:bean id="userDetailServiceImpl" class="com.pinyougou.service.UserDetailServiceImpl">
         <beans:property name="sellerService" ref="sellerService"/>
@@ -40,6 +41,6 @@
     <dubbo:application name="pinyougou-shop-web" />
     <!--<dubbo:registry address="zookeeper://192.168.25.128:2181"/>-->
     <dubbo:registry address="redis://localhost:6379"/>
-
+    <!--调用service层-->
     <dubbo:reference id="sellerService" interface="com.pinyougou.sellergoods.service.SellerService"/>
 </beans:beans>

@@ -29,4 +29,8 @@ app.service('typeTemplateService', function ($http) {
     this.search = function (page, rows, typeTemplateSelect) {
         return $http.post('../typeTemplate/search?page=' + page + "&rows=" + rows, typeTemplateSelect);
     };
+
+    this.findAllTypeName = function () {
+        return $http.get("../typeTemplate/findAllTypeName");
+    }
 });

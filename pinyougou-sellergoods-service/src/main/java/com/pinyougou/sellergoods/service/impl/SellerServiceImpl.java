@@ -12,6 +12,7 @@ import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -80,9 +81,9 @@ public class SellerServiceImpl implements SellerService {
      */
     @Override
     public void delete(String[] ids) {
-        for (String id : ids) {
-            sellerMapper.deleteByPrimaryKey(id);
-        }
+        TbSellerExample example = new TbSellerExample();
+        example.createCriteria().andSellerIdIn(Arrays.asList(ids));
+        sellerMapper.deleteByExample(example);
     }
 
 
