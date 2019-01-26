@@ -7,7 +7,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.findAll = function () {
         goodsService.findAll().success(
             function (data) {
-                $scope.list = data;
+                $scope.goods = data;
             }
         );
     };
@@ -16,7 +16,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.findPage = function (page, rows) {
         goodsService.findPage(page, rows).success(
             function (data) {
-                $scope.list = data.rows;
+                $scope.goods = data.rows;
                 $scope.paginationConf.totalItems = data.total;//更新总记录数
             }
         );
@@ -26,26 +26,21 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.findOne = function (id) {
         goodsService.findOne(id).success(
             function (data) {
-                $scope.entity = data;
+                $scope.good = data;
             }
         );
     };
 
-    //保存
-    $scope.save = function () {
-        var serviceObject;//服务层对象
-        if ($scope.entity.id != null) {//如果有ID
-            serviceObject = goodsService.update($scope.entity); //修改
-        } else {
-            serviceObject = goodsService.add($scope.entity);//增加
-        }
-        serviceObject.success(
+    $scope.add = function () {
+        $scope.good.goodsDesc.introduction = editor.html();
+        goodsService.add($scope.good).success(
             function (data) {
                 if (data.success) {
-                    //重新查询
-                    $scope.reload();//重新加载
+                    alert("添加成功");
+                    $scope.good = {};
+                    editor.html("");
                 } else {
-                    alert(data.message);
+                    alert(data.msg);
                 }
             }
         );
@@ -59,7 +54,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
             function (data) {
                 if (data.success) {
                     $scope.reload();//刷新列表
-                    $scope.selectIds = [];
+                    $scope.ids = [];
                 }
             }
         );
@@ -71,7 +66,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.search = function (page, rows) {
         goodsService.search(page, rows, $scope.searchEntity).success(
             function (data) {
-                $scope.list = data.rows;
+                $scope.goods = data.rows;
                 $scope.paginationConf.totalItems = data.total;//更新总记录数
             }
         );

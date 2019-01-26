@@ -1,7 +1,6 @@
 package com.pinyougou.pojogroup;
 
 import com.pinyougou.pojo.TbItemCat;
-import com.pinyougou.pojo.TbTypeTemplate;
 
 import java.io.Serializable;
 import java.util.List;

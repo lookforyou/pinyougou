@@ -39,13 +39,16 @@
 <div class="box-body">
     <ol class="breadcrumb">
         <li>
-            <a href="#" ng-click="grade=1;selectList({id:0})">顶级分类列表</a>
+            <a href="#" ng-click="grade=1;selectList({id:0});createBread = {breads:[]}">顶级分类列表</a>
         </li>
-        <li>
+        <!--<li>
             <a href="#" ng-click="updateGrade(2);selectList(itemCat_1)">{{itemCat_1.name}}</a>
         </li>
         <li>
             <a href="#" ng-click="updateGrade(3);selectList(itemCat_2)">{{itemCat_2.name}}</a>
+        </li>-->
+        <li ng-repeat="bread in createBread.breads">
+            <a href="#" ng-click="updateGrade(grade);selectList(bread);deleteLi($index)">{{bread.name}}</a>
         </li>
     </ol>
 
@@ -62,7 +65,7 @@
                     <button type="button" class="btn btn-default" title="删除" ng-click="dele()"><i
                             class="fa fa-trash-o"></i> 删除
                     </button>
-                    <button type="button" class="btn btn-default" title="刷新"><i class="fa fa-check"></i> 刷新</button>
+                    <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-check"></i> 刷新</button>
 
                 </div>
             </div>
@@ -92,7 +95,11 @@
                     {{itemCat.typeId}}
                 </td>
                 <td class="text-center">
-                    <span ng-if="grade != 3">
+                    <!--<span ng-if="grade != 3">
+                        <button type="button" class="btn bg-olive btn-xs"
+                                ng-click="updateGrade(grade + 1);selectList(itemCat)">查询下级</button>
+                    </span>-->
+                    <span ng-if="createBread.breads.length != 2">
                         <button type="button" class="btn bg-olive btn-xs"
                                 ng-click="updateGrade(grade + 1);selectList(itemCat)">查询下级</button>
                     </span>
@@ -127,8 +134,10 @@
                     <tr>
                         <td>上级商品分类</td>
                         <td>
-                            {{itemCat_1.name}} <span ng-if="itemCat_1 != null && itemCat_2 != null">>></span>
-                            {{itemCat_2.name}}
+                            <!--{{itemCat_1.name}} <span ng-if="itemCat_1 != null && itemCat_2 != null">>></span>
+                            {{itemCat_2.name}}-->
+                            {{createBread.breads[0].name}} <span ng-if="createBread.breads[0] != null && createBread.breads[1] != null">>></span>
+                            {{createBread.breads[1].name}}
                         </td>
                     </tr>
                     <tr>

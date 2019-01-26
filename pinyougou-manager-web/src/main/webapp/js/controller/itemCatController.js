@@ -101,8 +101,9 @@ app.controller('itemCatController', function ($scope, $controller, itemCatServic
         $scope.grade = value;
     };
 
+    $scope.createBread = {breads:[]};
     $scope.selectList = function (p_itemCat) {
-        if ($scope.grade == 1) {
+        /*if ($scope.grade == 1) {
             $scope.itemCat_1 = null;
             $scope.itemCat_2 = null;
         }
@@ -112,9 +113,21 @@ app.controller('itemCatController', function ($scope, $controller, itemCatServic
         }
         if ($scope.grade == 3) {
             $scope.itemCat_2 = p_itemCat;
+        }*/
+        for (var i = 1; i < $scope.grade; i++) {
+            $scope.createBread.breads.push(p_itemCat);
+            //避免存入相同的对象
+            $scope.grade = $scope.grade - 1;
         }
 
         $scope.findByParentId(p_itemCat.id);
+    };
+
+    $scope.deleteLi = function($index) {
+        //剩余多少个
+        $scope.count = $scope.createBread.breads.length - ($index + 1);
+        //移除不包括自己的后面的所有元素
+        $scope.createBread.breads.splice($index + 1, $scope.count);
     };
 
     $scope.typeTemplate = {data: []};

@@ -14,12 +14,12 @@ app.service('goodsService', function ($http) {
         return $http.get('../goods/findOne?id=' + id);
     };
     //增加
-    this.add = function (entity) {
-        return $http.post('../goods/add', entity);
+    this.add = function (good) {
+        return $http.post('../goods/add', good);
     };
     //修改
-    this.update = function (entity) {
-        return $http.post('../goods/update', entity);
+    this.update = function (good) {
+        return $http.post('../goods/update', good);
     };
     //删除
     this.dele = function (ids) {

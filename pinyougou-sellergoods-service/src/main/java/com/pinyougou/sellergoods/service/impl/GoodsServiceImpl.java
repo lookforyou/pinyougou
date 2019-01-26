@@ -3,10 +3,13 @@ package com.pinyougou.sellergoods.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.dao.TbGoodsDescMapper;
 import com.pinyougou.dao.TbGoodsMapper;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbGoodsDesc;
 import com.pinyougou.pojo.TbGoodsExample;
 import com.pinyougou.pojo.TbGoodsExample.Criteria;
+import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private TbGoodsMapper goodsMapper;
 
+    @Autowired
+    private TbGoodsDescMapper goodsDescMapper;
     /**
      * 查询全部
      */
@@ -41,8 +46,13 @@ public class GoodsServiceImpl implements GoodsService {
      * 增加
      */
     @Override
-    public void add(TbGoods goods) {
-        goodsMapper.insert(goods);
+    public void add(Goods goods) {
+        TbGoods tbGoods = goods.getGoods();
+        tbGoods.setAuditStatus("0");//设置商品未上架
+        goodsMapper.insert(tbGoods);
+        TbGoodsDesc goodsDesc = goods.getGoodsDesc();
+        goodsDesc.setGoodsId(goods.getGoods().getId());
+        goodsDescMapper.insert(goodsDesc);
     }
 
 
