@@ -67,14 +67,19 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/update")
-    public ResultInfo update(@RequestBody TbGoods goods) {
-        try {
-            goodsService.update(goods);
-            return new ResultInfo(true, "修改成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResultInfo(false, "修改失败");
+    public ResultInfo update(@RequestBody Goods goods) {
+        String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Goods goods1 = goodsService.findOne(goods.getGoods().getId());
+        if (goods1.getGoods().getSellerId().equals(sellerId)) {
+            try {
+                goodsService.update(goods);
+                return new ResultInfo(true, "修改成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResultInfo(false, "修改失败");
+            }
         }
+        return new ResultInfo(false, "非法操作");
     }
 
     /**
@@ -84,7 +89,7 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/findById")
-    public TbGoods findOne(Long id) {
+    public Goods findOne(Long id) {
         return goodsService.findOne(id);
     }
 
@@ -115,7 +120,20 @@ public class GoodsController {
      */
     @RequestMapping("/search")
     public PageResult search(@RequestBody TbGoods goods, int page, int rows) {
+        String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+        goods.setSellerId(sellerId);
         return goodsService.findPage(goods, page, rows);
+    }
+
+    @RequestMapping("/updateMarketTable")
+    public ResultInfo updateMarketTable(String status, Long... ids) {
+        try {
+            goodsService.updateMarketTable(status, ids);
+            return new ResultInfo(true, "上架成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResultInfo(false, "上架失败");
+        }
     }
 
 }

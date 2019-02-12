@@ -1,5 +1,5 @@
 //控制层
-app.controller('goodsController', function ($scope, $controller, goodsService) {
+app.controller('goodsController', function ($scope, $controller, goodsService, itemCatService) {
 
     $controller('baseController', {$scope: $scope});//继承
 
@@ -7,7 +7,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.findAll = function () {
         goodsService.findAll().success(
             function (data) {
-                $scope.list = data;
+                $scope.goods = data;
             }
         );
     };
@@ -16,7 +16,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.findPage = function (page, rows) {
         goodsService.findPage(page, rows).success(
             function (data) {
-                $scope.list = data.rows;
+                $scope.goods = data.rows;
                 $scope.paginationConf.totalItems = data.total;//更新总记录数
             }
         );
@@ -26,7 +26,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     $scope.findOne = function (id) {
         goodsService.findOne(id).success(
             function (data) {
-                $scope.entity = data;
+                $scope.good = data;
             }
         );
     };
@@ -45,7 +45,7 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
                     //重新查询
                     $scope.reload();//重新加载
                 } else {
-                    alert(data.message);
+                    alert(data.msg);
                 }
             }
         );
@@ -55,25 +55,52 @@ app.controller('goodsController', function ($scope, $controller, goodsService) {
     //批量删除
     $scope.dele = function () {
         //获取选中的复选框
-        goodsService.dele($scope.selectIds).success(
+        goodsService.dele($scope.ids).success(
             function (data) {
                 if (data.success) {
                     $scope.reload();//刷新列表
-                    $scope.selectIds = [];
+                    $scope.ids = [];
                 }
             }
         );
     };
 
-    $scope.searchEntity = {};//定义搜索对象
+    $scope.searchGoods = {};//定义搜索对象
 
     //搜索
     $scope.search = function (page, rows) {
-        goodsService.search(page, rows, $scope.searchEntity).success(
+        goodsService.search(page, rows, $scope.searchGoods).success(
             function (data) {
-                $scope.list = data.rows;
+                $scope.goods = data.rows;
                 $scope.paginationConf.totalItems = data.total;//更新总记录数
             }
         );
     };
+
+    $scope.status = ['未审核', '已审核', '审核未通过', '已关闭'];
+
+    $scope.itemCats = [];
+    $scope.findItemCats = function () {
+        itemCatService.findAll().success(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                $scope.itemCats [data[i].id] = data[i].name;
+            }
+        })
+    };
+
+    $scope.updateStatus = function (status) {
+        if (!$scope.ids.length == 0) {
+            goodsService.updateStatus(status, $scope.ids).success(function (data) {
+                if (data.success) {
+                    $scope.reload();
+                    $scope.ids = [];
+                } else {
+                    alert(data.msg);
+                    $scope.ids = [];
+                }
+            })
+        } else {
+            alert("请选择要审核的商品");
+        }
+    }
 });	

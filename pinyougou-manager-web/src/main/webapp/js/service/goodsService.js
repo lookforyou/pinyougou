@@ -7,26 +7,30 @@ app.service('goodsService', function ($http) {
     };
     //分页
     this.findPage = function (page, rows) {
-        return $http.get('../goods/findPage?page=' + page + '&rows=' + rows);
+        return $http.get('../goods/findByPage?page=' + page + '&rows=' + rows);
     };
     //查询实体
     this.findOne = function (id) {
-        return $http.get('../goods/findOne?id=' + id);
+        return $http.get('../goods/findById?id=' + id);
     };
     //增加
-    this.add = function (entity) {
-        return $http.post('../goods/add', entity);
+    this.add = function (good) {
+        return $http.post('../goods/add', good);
     };
     //修改
-    this.update = function (entity) {
-        return $http.post('../goods/update', entity);
+    this.update = function (good) {
+        return $http.post('../goods/update', good);
     };
     //删除
     this.dele = function (ids) {
         return $http.get('../goods/delete?ids=' + ids);
     };
     //搜索
-    this.search = function (page, rows, searchEntity) {
-        return $http.post('../goods/search?page=' + page + "&rows=" + rows, searchEntity);
+    this.search = function (page, rows, searchGoods) {
+        return $http.post('../goods/search?page=' + page + '&rows=' + rows, searchGoods);
     };
+
+    this.updateStatus = function (status, ids) {
+        return $http.get('../goods/updateStatus?status=' + status + '&ids=' + ids);
+    }
 });

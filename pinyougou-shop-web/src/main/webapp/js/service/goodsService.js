@@ -11,7 +11,7 @@ app.service('goodsService', function ($http) {
     };
     //查询实体
     this.findOne = function (id) {
-        return $http.get('../goods/findOne?id=' + id);
+        return $http.get('../goods/findById?id=' + id);
     };
     //增加
     this.add = function (good) {
@@ -26,7 +26,11 @@ app.service('goodsService', function ($http) {
         return $http.get('../goods/delete?ids=' + ids);
     };
     //搜索
-    this.search = function (page, rows, searchEntity) {
-        return $http.post('../goods/search?page=' + page + "&rows=" + rows, searchEntity);
+    this.search = function (page, rows, searchGoods) {
+        return $http.post('../goods/search?page=' + page + '&rows=' + rows, searchGoods);
     };
+
+    this.updateMarketTable = function (status, ids) {
+        return $http.get("../goods/updateMarketTable?status=" + status + "&ids=" + ids);
+    }
 });

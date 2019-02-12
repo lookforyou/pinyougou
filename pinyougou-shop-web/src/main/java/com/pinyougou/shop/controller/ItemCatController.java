@@ -1,9 +1,9 @@
-package com.pinyougou.manager.controller;
+package com.pinyougou.shop.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.pojo.TbGoods;
-import com.pinyougou.pojogroup.Goods;
-import com.pinyougou.sellergoods.service.GoodsService;
+import com.pinyougou.pojo.TbItemCat;
+import com.pinyougou.pojogroup.ItemCat;
+import com.pinyougou.sellergoods.service.ItemCatService;
 import entity.PageResult;
 import entity.ResultInfo;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/goods")
-public class GoodsController {
+@RequestMapping("/itemCat")
+public class ItemCatController {
 
     @Reference
-    private GoodsService goodsService;
+    private ItemCatService itemCatService;
 
     /**
      * 返回全部列表
@@ -25,8 +25,8 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/findAll")
-    public List<TbGoods> findAll() {
-        return goodsService.findAll();
+    public List<TbItemCat> findAll() {
+        return itemCatService.findAll();
     }
 
 
@@ -35,21 +35,38 @@ public class GoodsController {
      *
      * @return
      */
-    @RequestMapping("/findByPage")
+    @RequestMapping("/findPage")
     public PageResult findPage(int page, int rows) {
-        return goodsService.findPage(page, rows);
+        return itemCatService.findPage(page, rows);
+    }
+
+    /**
+     * 增加
+     *
+     * @param itemCat
+     * @return
+     */
+    @RequestMapping("/add")
+    public ResultInfo add(@RequestBody TbItemCat itemCat) {
+        try {
+            itemCatService.add(itemCat);
+            return new ResultInfo(true, "增加成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResultInfo(false, "增加失败");
+        }
     }
 
     /**
      * 修改
      *
-     * @param goods
+     * @param itemCat
      * @return
      */
     @RequestMapping("/update")
-    public ResultInfo update(@RequestBody Goods goods) {
+    public ResultInfo update(@RequestBody TbItemCat itemCat) {
         try {
-            goodsService.update(goods);
+            itemCatService.update(itemCat);
             return new ResultInfo(true, "修改成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,9 +80,9 @@ public class GoodsController {
      * @param id
      * @return
      */
-    @RequestMapping("/findById")
-    public Goods findOne(Long id) {
-        return goodsService.findOne(id);
+    @RequestMapping("/findOne")
+    public ItemCat findOne(Long id) {
+        return itemCatService.findOne(id);
     }
 
     /**
@@ -77,7 +94,7 @@ public class GoodsController {
     @RequestMapping("/delete")
     public ResultInfo delete(Long[] ids) {
         try {
-            goodsService.delete(ids);
+            itemCatService.delete(ids);
             return new ResultInfo(true, "删除成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,25 +105,19 @@ public class GoodsController {
     /**
      * 查询+分页
      *
-     * @param goods
+     * @param itemCat
      * @param page
      * @param rows
      * @return
      */
     @RequestMapping("/search")
-    public PageResult search(@RequestBody TbGoods goods, int page, int rows) {
-        return goodsService.findPage(goods, page, rows);
+    public PageResult search(@RequestBody TbItemCat itemCat, int page, int rows) {
+        return itemCatService.findPage(itemCat, page, rows);
     }
 
-    @RequestMapping("/updateStatus")
-    public ResultInfo updateStatus(String status, Long... ids) {
-        try {
-            goodsService.updateStatus(status, ids);
-            return new ResultInfo(true, "成功");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResultInfo(false, "失败");
-        }
+    @RequestMapping("/findByParentId")
+    public List<TbItemCat> findByParentId(Long parentId) {
+        return itemCatService.findByParentId(parentId);
     }
 
 }
