@@ -229,7 +229,7 @@ app.controller('goodsController', function ($scope, $controller, $location, good
                     alert(data.msg);
                     $scope.ids = [];
                 } else {
-                    alert(adata.msg);
+                    alert(data.msg);
                     $scope.ids = [];
                 }
             })
