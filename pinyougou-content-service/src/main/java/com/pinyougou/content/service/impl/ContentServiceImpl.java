@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * 服务实现层
  */
-@Service
+@Service(timeout = 5000)
 public class ContentServiceImpl implements ContentService {
 
     @Autowired
