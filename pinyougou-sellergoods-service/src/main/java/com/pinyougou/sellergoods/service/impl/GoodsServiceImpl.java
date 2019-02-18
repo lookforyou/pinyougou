@@ -181,6 +181,19 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
+    /**
+     * 根据goodIds添加sku信息到索引库中
+     * @param goodIds
+     * @param status
+     * @return
+     */
+    @Override
+    public List<TbItem> findItemByGoodIdsAndStatus(Long[] goodIds, String status) {
+        TbItemExample example = new TbItemExample();
+        example.createCriteria().andGoodsIdIn(Arrays.asList(goodIds)).andStatusEqualTo(status);
+        return itemMapper.selectByExample(example);
+    }
+
     private void insertItem(Goods goods, TbItem item) {
         item.setCategoryid(goods.getGoods().getCategory3Id());
         item.setCreateTime(new Date());
@@ -218,7 +231,7 @@ public class GoodsServiceImpl implements GoodsService {
             TbItem item = new TbItem();
             item.setTitle(goods.getGoods().getGoodsName());
             item.setNum(9999);
-            item.setStatus("1");
+            item.setStatus("0");
             item.setIsDefault("1");
             item.setSpec("{}");
             insertItem(goods, item);

@@ -8,11 +8,11 @@ import com.pinyougou.dao.TbTypeTemplateMapper;
 import com.pinyougou.pojo.TbItemCat;
 import com.pinyougou.pojo.TbItemCatExample;
 import com.pinyougou.pojo.TbItemCatExample.Criteria;
-import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojogroup.ItemCat;
 import com.pinyougou.sellergoods.service.ItemCatService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +27,8 @@ public class ItemCatServiceImpl implements ItemCatService {
     @Autowired
     private TbTypeTemplateMapper tbTypeTemplateMapper;
 
+    @Autowired
+    private RedisTemplate<String, Long> redisTemplate;
     /**
      * 查询全部
      */
@@ -98,17 +100,13 @@ public class ItemCatServiceImpl implements ItemCatService {
     @Override
     public PageResult findPage(TbItemCat itemCat, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-
         TbItemCatExample example = new TbItemCatExample();
         Criteria criteria = example.createCriteria();
-
         if (itemCat != null) {
             if (itemCat.getName() != null && itemCat.getName().length() > 0) {
                 criteria.andNameLike("%" + itemCat.getName() + "%");
             }
-
         }
-
         Page<TbItemCat> page = (Page<TbItemCat>) itemCatMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());
     }
@@ -117,7 +115,19 @@ public class ItemCatServiceImpl implements ItemCatService {
     public List<TbItemCat> findByParentId(Long parentId) {
         TbItemCatExample example = new TbItemCatExample();
         example.createCriteria().andParentIdEqualTo(parentId);
+        saveDataToRedis();
         return itemCatMapper.selectByExample(example);
+    }
+
+    /**
+     * 将模板名称和模板ID存入缓冲
+     */
+    private void saveDataToRedis() {
+        List<TbItemCat> tbItemCats = findAll();
+        for (TbItemCat tbItemCat : tbItemCats) {
+            redisTemplate.boundHashOps("itemCat").put(tbItemCat.getName(), tbItemCat.getTypeId());
+        }
+        System.out.println("缓存分类名称和模板ID");
     }
 
 }

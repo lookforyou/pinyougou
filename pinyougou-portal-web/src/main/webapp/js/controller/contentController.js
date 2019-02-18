@@ -4,5 +4,9 @@ app.controller("contentController", function ($scope, contentService) {
         contentService.findByCategoryId(categoryId).success(function (data) {
             $scope.contents[categoryId] = data;
         })
+    };
+
+    $scope.search = function () {
+        location.href = "http://localhost:9104/search.html#?keywords=" + $scope.keywords;
     }
 });

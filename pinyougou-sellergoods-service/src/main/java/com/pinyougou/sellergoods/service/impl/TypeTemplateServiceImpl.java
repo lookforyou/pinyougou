@@ -14,6 +14,7 @@ import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 
     @Autowired
     private TbSpecificationOptionMapper tbSpecificationOptionMapper;
+
+    @Autowired
+    private RedisTemplate<String, List> redisTemplate;
 
     /**
      * 查询全部
@@ -88,10 +92,8 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
     @Override
     public PageResult findPage(TbTypeTemplate typeTemplate, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-
         TbTypeTemplateExample example = new TbTypeTemplateExample();
         Criteria criteria = example.createCriteria();
-
         if (typeTemplate != null) {
             if (typeTemplate.getName() != null && typeTemplate.getName().length() > 0) {
                 criteria.andNameLike("%" + typeTemplate.getName() + "%");
@@ -106,9 +108,24 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
                 criteria.andCustomAttributeItemsLike("%" + typeTemplate.getCustomAttributeItems() + "%");
             }
         }
-
         Page<TbTypeTemplate> page = (Page<TbTypeTemplate>) typeTemplateMapper.selectByExample(example);
+        saveDataToRedis();
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
+     *
+     */
+    private void saveDataToRedis() {
+        List<TbTypeTemplate> tbTypeTemplates = findAll();
+        for (TbTypeTemplate tbTypeTemplate : tbTypeTemplates) {
+            List<Map> brandIds = JSON.parseArray(tbTypeTemplate.getBrandIds(), Map.class);
+            List<Map> specIds = findSpecIds(tbTypeTemplate.getId());
+            redisTemplate.boundHashOps("brands").put(tbTypeTemplate.getId(), brandIds);
+            redisTemplate.boundHashOps("specs").put(tbTypeTemplate.getId(), specIds);
+        }
+        System.out.println("缓存品牌列表");
+        System.out.println("缓存规格列表");
     }
 
     @Override

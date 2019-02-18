@@ -46,7 +46,7 @@
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/admin/*</url-pattern>
+    <url-pattern>/fonts/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>

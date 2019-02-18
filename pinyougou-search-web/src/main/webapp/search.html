@@ -17,7 +17,7 @@
     <script type="text/javascript" src="/js/controller/searchController.js"></script>
 </head>
 
-<body ng-app="pinyougou" ng-controller="searchController">
+<body ng-app="pinyougou" ng-controller="searchController" ng-init="loadKeywords()">
 <!-- 头部栏位 -->
 <!--页面顶部-->
 <div id="nav-bottom">
@@ -82,7 +82,7 @@
                                 <!--searchAutoComplete-->
                                 <div class="input-append">
                                     <input type="text" id="autocomplete" type="text" class="input-error input-xxlarge" ng-model="searchMap.keywords"/>
-                                    <button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="search()">搜索</button>
+                                    <button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="search();searchMap.pageNo = 1">搜索</button>
                                 </div>
                             </form>
                         </div>
@@ -145,57 +145,45 @@
 <!--list-content-->
 <div class="main">
     <div class="py-container">
+        <span ng-if="resultMap.total != null">搜索结果：共{{resultMap.total}}条数据</span>
         <!--bread-->
-        <div class="bread">
+        <div class="bread" ng-if="searchMap.category != '' || searchMap.brand != '' || searchMap.price != ''">
             <ul class="fl sui-breadcrumb">
                 <li>
-                    <a href="#">全部结果</a>
+                    <a href="#">搜索条件：</a>
                 </li>
-                <li class="active">智能手机</li>
             </ul>
             <ul class="tags-choose">
-                <li class="tag">全网通<i class="sui-icon icon-tb-close"></i></li>
-                <li class="tag">63G<i class="sui-icon icon-tb-close"></i></li>
+                <li class="tag" ng-if="searchMap.category != ''">商品分类：{{searchMap.category}}<i class="sui-icon icon-tb-close" ng-click="deleteSearchItem('category')"></i></li>
+                <li class="tag" ng-if="searchMap.brand != ''">品牌：{{searchMap.brand}}<i class="sui-icon icon-tb-close" ng-click="deleteSearchItem('brand')"></i></li>
+                <li class="tag" ng-repeat="(key, value) in searchMap.spec">{{key}}：{{searchMap.spec[key]}}<i class="sui-icon icon-tb-close" ng-click="deleteSearchItem(key)"></i></li>
+                <li class="tag" ng-if="searchMap.price != ''">价格：<span ng-if="searchMap.price == '3000-*'">3000元以上</span><span ng-if="searchMap.price != '3000-*'">{{searchMap.price}}元</span><i class="sui-icon icon-tb-close" ng-click="deleteSearchItem('price')"></i></li>
             </ul>
-            <form class="fl sui-form form-dark">
-                <div class="input-control control-right">
-                    <input type="text"/>
-                    <i class="sui-icon icon-touch-magnifier"></i>
-                </div>
-            </form>
             <div class="clearfix"></div>
         </div>
         <!--selector-->
         <div class="clearfix selector">
-            <div class="type-wrap">
+            <div class="type-wrap" ng-if="resultMap.categories != null && searchMap.category == '' && keywordsIsCategory() == false">
                 <div class="fl key">商品分类</div>
                 <div class="fl value">
-                    <a href="#">手机</a> <a href="#">电视</a>
+                    <!--<span ng-repeat="category in resultMap.categories">
+                        <a ng-click="addSearchItem('category', category)">{{category}}</a>
+                    </span>-->
+                    <ul class="type-list">
+                        <li ng-repeat="category in resultMap.categories">
+                            <a ng-click="addSearchItem('category', category)">{{category}}</a>
+                        </li>
+                    </ul>
                 </div>
                 <div class="fl ext"></div>
             </div>
-            <div class="type-wrap logo">
-                <div class="fl key brand">品牌</div>
-                <div class="value logos">
-                    <ul class="logo-list">
-                        <li><img src="img/_/phone01.png"/></li>
-                        <li><img src="img/_/phone02.png"/></li>
-                        <li><img src="img/_/phone03.png"/></li>
-                        <li><img src="img/_/phone04.png"/></li>
-                        <li><img src="img/_/phone05.png"/></li>
-                        <li><img src="img/_/phone06.png"/></li>
-                        <li><img src="img/_/phone07.png"/></li>
-                        <li><img src="img/_/phone08.png"/></li>
-                        <li><img src="img/_/phone09.png"/></li>
-                        <li><img src="img/_/phone10.png"/></li>
-                        <li><img src="img/_/phone11.png"/></li>
-                        <li><img src="img/_/phone12.png"/></li>
-                        <li><img src="img/_/phone13.png"/></li>
-                        <li><img src="img/_/phone14.png"/></li>
-                        <li><img src="img/_/phone05.png"/></li>
-                        <li><img src="img/_/phone06.png"/></li>
-                        <li><img src="img/_/phone07.png"/></li>
-                        <li><img src="img/_/phone02.png"/></li>
+            <div class="type-wrap" ng-if="resultMap.brands != null && searchMap.brand == '' && keywordsIsBrand() == false">
+                <div class="fl key">品牌</div>
+                <div class="fl value">
+                    <ul class="type-list">
+                        <li ng-repeat="brand in resultMap.brands">
+                            <a ng-click="addSearchItem('brand', brand.text)">{{brand.text}}</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="ext">
@@ -203,102 +191,38 @@
                     <a href="javascript:void(0);">更多</a>
                 </div>
             </div>
-            <div class="type-wrap">
-                <div class="fl key">网络制式</div>
+            <div class="type-wrap" ng-if="searchMap.spec[spec.text] == null" ng-repeat="spec in resultMap.specs">
+                <div class="fl key">{{spec.text}}</div>
                 <div class="fl value">
                     <ul class="type-list">
-                        <li>
-                            <a>GSM（移动/联通2G）</a>
-                        </li>
-                        <li>
-                            <a>电信2G</a>
-                        </li>
-                        <li>
-                            <a>电信3G</a>
-                        </li>
-                        <li>
-                            <a>移动3G</a>
-                        </li>
-                        <li>
-                            <a>联通3G</a>
-                        </li>
-                        <li>
-                            <a>联通4G</a>
-                        </li>
-                        <li>
-                            <a>电信3G</a>
-                        </li>
-                        <li>
-                            <a>移动3G</a>
-                        </li>
-                        <li>
-                            <a>联通3G</a>
-                        </li>
-                        <li>
-                            <a>联通4G</a>
+                        <li ng-repeat="option in spec.options">
+                            <a ng-click="addSearchItem(spec.text, option.optionName)">{{option.optionName}}</a>
                         </li>
                     </ul>
                 </div>
                 <div class="fl ext"></div>
             </div>
-            <div class="type-wrap">
-                <div class="fl key">显示屏尺寸</div>
-                <div class="fl value">
-                    <ul class="type-list">
-                        <li>
-                            <a>4.0-4.9英寸</a>
-                        </li>
-                        <li>
-                            <a>4.0-4.9英寸</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="fl ext"></div>
-            </div>
-            <div class="type-wrap">
-                <div class="fl key">摄像头像素</div>
-                <div class="fl value">
-                    <ul class="type-list">
-                        <li>
-                            <a>1200万以上</a>
-                        </li>
-                        <li>
-                            <a>800-1199万</a>
-                        </li>
-                        <li>
-                            <a>1200-1599万</a>
-                        </li>
-                        <li>
-                            <a>1600万以上</a>
-                        </li>
-                        <li>
-                            <a>无摄像头</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="fl ext"></div>
-            </div>
-            <div class="type-wrap">
+            <div class="type-wrap" ng-if="searchMap.price == ''">
                 <div class="fl key">价格</div>
                 <div class="fl value">
                     <ul class="type-list">
                         <li>
-                            <a>0-500元</a>
+                            <a ng-click="addSearchItem('price', '0-500')">0-500元</a>
                         </li>
                         <li>
-                            <a>500-1000元</a>
+                            <a ng-click="addSearchItem('price', '500-1000')">500-1000元</a>
                         </li>
                         <li>
-                            <a>1000-1500元</a>
+                            <a ng-click="addSearchItem('price', '1000-1500')">1000-1500元</a>
                         </li>
                         <li>
-                            <a>1500-2000元</a>
+                            <a ng-click="addSearchItem('price', '1500-2000')">1500-2000元</a>
                         </li>
                         <li>
-                            <a>2000-3000元 </a>
+                            <a ng-click="addSearchItem('price', '2000-3000')">2000-3000元 </a>
                         </li>
                         <li>
-                            <a>3000元以上</a>
+                            <a ng-click="addSearchItem('price', '3000-*')">3000元以上</a>
                         </li>
                     </ul>
                 </div>
@@ -336,19 +260,22 @@
                 <div class="navbar-inner filter">
                     <ul class="sui-nav">
                         <li class="active">
-                            <a href="#">综合</a>
+                            <a href="#" ng-click="searchSort('', '')">综合</a>
                         </li>
                         <li>
                             <a href="#">销量</a>
                         </li>
                         <li>
-                            <a href="#">新品</a>
+                            <a href="#" ng-click="searchSort('DESC', 'updatetime')">新品</a>
                         </li>
                         <li>
                             <a href="#">评价</a>
                         </li>
                         <li>
-                            <a href="#">价格</a>
+                            <a href="#" ng-click="searchSort('ASC', 'price')">价格↑</a>
+                        </li>
+                        <li>
+                            <a href="#" ng-click="searchSort('DESC', 'price')">价格↓</a>
                         </li>
                     </ul>
                 </div>
@@ -358,7 +285,7 @@
                     <li class="yui3-u-1-5" ng-repeat="row in resultMap.rows">
                         <div class="list-wrap">
                             <div class="p-img">
-                                <a href="item.html" target="_blank"><img src="{{row.image}}"/></a>
+                                <a href="item.html" target="_blank"><img src="{{row.image}}" alt=""/></a>
                             </div>
                             <div class="price">
                                 <strong>
@@ -366,8 +293,7 @@
                                     <i>{{row.price}}</i>
                                 </strong>
                             </div>
-                            <div class="attr">
-                                <em>{{row.title}}</em>
+                            <div class="attr" ng-bind-html="row.title | trustHtml">
                             </div>
                             <div class="cu">
                                 <em></em>
@@ -387,33 +313,22 @@
             <div class="fr page">
                 <div class="sui-pagination pagination-large">
                     <ul>
-                        <li class="prev disabled">
-                            <a href="#">«上一页</a>
+                        <li class="prev {{searchMap.pageNo == 1 ? 'disabled' : ''}}">
+                            <a href="#" ng-click="queryForPage(searchMap.pageNo - 1)">«</a>
                         </li>
-                        <li class="active">
-                            <a href="#">1</a>
+                        <li class="dotted" ng-if="firstDotted == true"><span>...</span></li>
+                        <li ng-repeat="page in pageLabel" class="{{page == searchMap.pageNo ? 'active' : ''}}">
+                            <a href="#" ng-click="queryForPage(page)">{{page}}</a>
                         </li>
-                        <li>
-                            <a href="#">2</a>
-                        </li>
-                        <li>
-                            <a href="#">3</a>
-                        </li>
-                        <li>
-                            <a href="#">4</a>
-                        </li>
-                        <li>
-                            <a href="#">5</a>
-                        </li>
-                        <li class="dotted"><span>...</span></li>
-                        <li class="next">
-                            <a href="#">下一页»</a>
+                        <li class="dotted" ng-if="lastDotted == true"><span>...</span></li>
+                        <li class="next {{searchMap.pageNo == resultMap.totalPages ? 'disabled' : ''}}">
+                            <a href="#" ng-click="queryForPage(searchMap.pageNo + 1)">»</a>
                         </li>
                     </ul>
-                    <div><span>共10页&nbsp;</span><span>
+                    <div><span>共{{resultMap.totalPages}}页&nbsp;</span><span>
       到第
-      <input type="text" class="page-num">
-      页 <button class="page-confirm" onclick="alert(1)">确定</button></span></div>
+      <input type="text" class="page-num" ng-model="searchMap.pageNo">
+      页 <button class="page-confirm" ng-click="queryForPage(searchMap.pageNo)">确定</button></span></div>
                 </div>
             </div>
         </div>
