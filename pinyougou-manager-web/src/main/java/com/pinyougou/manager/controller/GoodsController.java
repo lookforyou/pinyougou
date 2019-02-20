@@ -1,6 +1,7 @@
 package com.pinyougou.manager.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
@@ -17,12 +18,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/goods")
 public class GoodsController {
-
     @Reference
     private GoodsService goodsService;
 
     @Reference(timeout = 10000)
     private ItemSearchService itemSearchService;
+
+    @Reference(timeout = 10000)
+    private ItemPageService itemPageService;
 
     /**
      * 返回全部列表
@@ -110,8 +113,10 @@ public class GoodsController {
             goodsService.updateStatus(status, ids);
             if ("1".equals(status)) {
                 List<TbItem> tbItemList = goodsService.findItemByGoodIdsAndStatus(ids, status);
-                System.out.println(tbItemList);
                 itemSearchService.importList(tbItemList);
+                for (Long id : ids) {
+                    itemPageService.genItemHtml(id);
+                }
             }
             return new ResultInfo(true, "成功");
         } catch (Exception e) {
@@ -119,5 +124,10 @@ public class GoodsController {
             return new ResultInfo(false, "失败");
         }
     }
+
+    /*@RequestMapping("/genItemHtml")
+    public void genItemHtml(Long goodsId) {
+        itemPageService.genItemHtml(goodsId);
+    }*/
 
 }
