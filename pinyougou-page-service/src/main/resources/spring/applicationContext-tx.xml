@@ -17,12 +17,7 @@
     </bean>
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
-            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
-            <tx:method name="update*" propagation="REQUIRED" read-only="false"/>
-            <tx:method name="add*" propagation="REQUIRED" read-only="false"/>
-            <tx:method name="delete*" propagation="REQUIRED" read-only="false"/>
-            <tx:method name="insert*" propagation="REQUIRED" read-only="false"/>
-            <tx:method name="save*" propagation="REQUIRED" read-only="false"/>
+            <tx:method name="genItemHtml" propagation="SUPPORTS" read-only="true"/>
         </tx:attributes>
     </tx:advice>
     <aop:config>
