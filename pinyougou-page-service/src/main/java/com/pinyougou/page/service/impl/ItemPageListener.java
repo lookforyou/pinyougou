@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.TextMessage;
+import javax.jms.ObjectMessage;
 
 /**
  * activeMQ监听类
@@ -19,11 +19,12 @@ public class ItemPageListener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        TextMessage textMessage = (TextMessage) message;
+        ObjectMessage objectMessage = (ObjectMessage) message;
         try {
-            String text = textMessage.getText();
-            Long goodsId = Long.parseLong(text);
-            itemPageService.genItemHtml(goodsId);
+            Long[] goodsIds = (Long[]) objectMessage.getObject();
+            for (Long goodsId : goodsIds) {
+                itemPageService.genItemHtml(goodsId);
+            }
         } catch (JMSException e) {
             e.printStackTrace();
         }

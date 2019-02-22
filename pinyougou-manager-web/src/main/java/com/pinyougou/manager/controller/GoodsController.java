@@ -141,7 +141,7 @@ public class GoodsController {
     }
 
     @RequestMapping("/updateStatus")
-    public ResultInfo updateStatus(String status, Long... ids) {
+    public ResultInfo updateStatus(String status, final Long... ids) {
         try {
             goodsService.updateStatus(status, ids);
             if ("1".equals(status)) {
@@ -157,15 +157,13 @@ public class GoodsController {
                     }
                 });
                 //activeMQ消息中间件 发布/订阅
-                for (final Long id : ids) {
-//                    itemPageService.genItemHtml(id);
-                    jmsTemplate.send(topicPageDestination, new MessageCreator() {
-                        @Override
-                        public Message createMessage(Session session) throws JMSException {
-                            return session.createTextMessage(id + "");
-                        }
-                    });
-                }
+//                itemPageService.genItemHtml(id);
+                jmsTemplate.send(topicPageDestination, new MessageCreator() {
+                    @Override
+                    public Message createMessage(Session session) throws JMSException {
+                        return session.createObjectMessage(ids);
+                    }
+                });
             }
             return new ResultInfo(true, "成功");
         } catch (Exception e) {
