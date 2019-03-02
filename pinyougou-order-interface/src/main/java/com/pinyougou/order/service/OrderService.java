@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.pinyougou.pojo.TbOrder;
 
+import com.pinyougou.pojo.TbPayLog;
 import entity.PageResult;
 
 public interface OrderService {
@@ -61,4 +62,7 @@ public interface OrderService {
      */
     public PageResult findPage(TbOrder order, int pageNum, int pageSize);
 
+    TbPayLog searchPayLogFormRedis(String userId);
+
+    void updateOrderStatus(String out_trade_no, String transaction_id);
 }

@@ -58,4 +58,47 @@ public class WeixinPayServiceImpl implements WeixinPayService {
             return new HashMap();
         }
     }
+
+    @Override
+    public Map queryPayStatus(String out_trade_no) {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("appid", appid);
+        data.put("mch_id", partner);
+        data.put("out_trade_no", out_trade_no);
+        data.put("nonce_str", WXPayUtil.generateNonceStr());
+        try {
+            String dataXml = WXPayUtil.generateSignedXml(data, partnerkey);
+            HttpClient httpClient = new HttpClient("https://api.mch.weixin.qq.com/pay/orderquery");
+            httpClient.setXmlParam(dataXml);
+            httpClient.setHttps(true);
+            httpClient.post();
+            String resultStr = httpClient.getContent();
+            System.out.println("查询订单返回的结果：" + resultStr);
+            return WXPayUtil.xmlToMap(resultStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Map closeOrder(String out_trade_no) {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("appid", appid);
+        data.put("mch_id", partner);
+        data.put("out_trade_no", out_trade_no);
+        data.put("nonce_str", WXPayUtil.generateNonceStr());
+        try {
+            String dataXml = WXPayUtil.mapToXml(data);
+            HttpClient httpClient = new HttpClient("https://api.mch.weixin.qq.com/pay/closeorder");
+            httpClient.setHttps(true);
+            httpClient.setXmlParam(dataXml);
+            httpClient.post();
+            String resultStr = httpClient.getContent();
+            return WXPayUtil.xmlToMap(resultStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

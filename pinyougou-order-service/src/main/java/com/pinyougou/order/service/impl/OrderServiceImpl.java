@@ -5,11 +5,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pinyougou.dao.TbOrderItemMapper;
 import com.pinyougou.dao.TbOrderMapper;
+import com.pinyougou.dao.TbPayLogMapper;
 import com.pinyougou.order.service.OrderService;
 import com.pinyougou.pojo.TbOrder;
 import com.pinyougou.pojo.TbOrderExample;
 import com.pinyougou.pojo.TbOrderExample.Criteria;
 import com.pinyougou.pojo.TbOrderItem;
+import com.pinyougou.pojo.TbPayLog;
 import com.pinyougou.pojogroup.Cart;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import util.IdWorker;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +43,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private IdWorker idWorker;
+
+    @Autowired
+    private TbPayLogMapper payLogMapper;
 
     /**
      * 查询全部
@@ -65,6 +72,8 @@ public class OrderServiceImpl implements OrderService {
     public void add(TbOrder order) {
         List<Cart> carts = (List<Cart>) redisTemplate.boundHashOps("carts").get(order.getUserId());
         TbOrder tbOrder = null;
+        double totalFee = 0;
+        List<String> orderList = new ArrayList<String>();
         for (Cart cart : carts) {
             tbOrder = new TbOrder();
             long orderId = idWorker.nextId();
@@ -88,9 +97,24 @@ public class OrderServiceImpl implements OrderService {
                 money += orderItem.getTotalFee().doubleValue();
             }
             tbOrder.setPayment(new BigDecimal(money));
+            totalFee += money;
+            orderList.add(orderId + "");
             orderMapper.insert(tbOrder);
         }
-        redisTemplate.boundHashOps("carts").delete(order.getSellerId());
+        //插入支付日志
+        if ("1".equals(order.getPaymentType())) {
+            TbPayLog tbPayLog = new TbPayLog();
+            tbPayLog.setCreateTime(new Date());
+            tbPayLog.setUserId(order.getUserId());
+            tbPayLog.setOutTradeNo(idWorker.nextId() + "");
+            tbPayLog.setTradeState("0");
+            tbPayLog.setTotalFee((long) (totalFee * 100));
+            tbPayLog.setPayType("1");
+            tbPayLog.setOrderList(orderList.toString().replace("[", "").replace("]", ""));
+            payLogMapper.insert(tbPayLog);
+            redisTemplate.boundHashOps("payLog").put(order.getUserId(), tbPayLog);
+        }
+        redisTemplate.boundHashOps("carts").delete(order.getUserId());
     }
 
 
@@ -185,6 +209,29 @@ public class OrderServiceImpl implements OrderService {
 
         Page<TbOrder> page = (Page<TbOrder>) orderMapper.selectByExample(example);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    @Override
+    public TbPayLog searchPayLogFormRedis(String userId) {
+        return (TbPayLog) redisTemplate.boundHashOps("payLog").get(userId);
+    }
+
+    @Override
+    public void updateOrderStatus(String out_trade_no, String transaction_id) {
+        TbPayLog tbPayLog = payLogMapper.selectByPrimaryKey(out_trade_no);
+        tbPayLog.setPayTime(new Date());
+        tbPayLog.setTransactionId(transaction_id);
+        tbPayLog.setTradeState("1");
+        payLogMapper.updateByPrimaryKey(tbPayLog);
+        String orderList = tbPayLog.getOrderList();
+        String[] orderIds = orderList.split(",");
+        for (String orderId : orderIds) {
+            TbOrder tbOrder = orderMapper.selectByPrimaryKey(Long.valueOf(orderId));
+            tbOrder.setStatus("2");
+            tbOrder.setUpdateTime(new Date());
+            orderMapper.updateByPrimaryKey(tbOrder);
+        }
+        redisTemplate.boundHashOps("payLog").delete(tbPayLog.getUserId());
     }
 
 }
