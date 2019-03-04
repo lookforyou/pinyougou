@@ -61,6 +61,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
      */
     @Override
     public void update(TbSeckillGoods seckillGoods) {
+        redisTemplate.boundHashOps("seckillGoods").delete(seckillGoods.getId());
         seckillGoodsMapper.updateByPrimaryKey(seckillGoods);
     }
 
