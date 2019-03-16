@@ -23,7 +23,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<Cart> addGoodsToCarts(List<Cart> carts, Long itemId, Integer num) {
-        //查询商品sku信息
+        //查询商品sku详细信息
         TbItem tbItem = tbItemMapper.selectByPrimaryKey(itemId);
         if (!"1".equals(tbItem.getStatus())) {
             throw new RuntimeException("商品状态不正常");
@@ -31,7 +31,7 @@ public class CartServiceImpl implements CartService {
         if (tbItem.getNum() == 0) {
             throw new RuntimeException("商品库存不足");
         }
-        //根据sku信息查询商家id
+        //根据sku信息得到商家id
         String sellerId = tbItem.getSellerId();
         //根据商家id查询购物车对象
         Cart cart = searchCartsBySellerId(carts, sellerId);
@@ -91,6 +91,12 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    /**
+     * 合并购物车
+     * @param redisCarts
+     * @param cookieCarts
+     * @return
+     */
     @Override
     public List<Cart> mergeCarts(List<Cart> redisCarts, List<Cart> cookieCarts) {
         for (Cart cookieCart : cookieCarts) {
